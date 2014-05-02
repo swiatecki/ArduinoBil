@@ -19,7 +19,7 @@ void setup() {
   
   //Init motor vals
   
-  digitalWrite(dir,HIGH); // Motor forward 
+  digitalWrite(dir,LOW); // Motor forward 
   digitalWrite(brake,LOW); // Disengage brakes
   
   // Setup servo
@@ -54,6 +54,7 @@ void loop() {
   
  // Serial.println("Go go ");
   }else if(BTChar == 's'){
+    
   
     // Stop motor
   //  Serial.println("Stopping");
@@ -62,7 +63,8 @@ void loop() {
   else if(BTChar == 'p'){
 
   inPos = BTSerial.parseInt();
-  if(inPos ==){
+  if(inPos ==0  
+  ){
  }else{
   inPos = map(inPos,1,100,0,179); // change when servo is mounted
   
@@ -75,7 +77,7 @@ void loop() {
   
   }*/
   servo.write(inPos);
-    Serial.println(inPos);
+   // Serial.println(inPos);
   delay(100);
  }
  
