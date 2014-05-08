@@ -15,7 +15,7 @@ SoftwareSerial BTSerial(4,5);  // RX, TX
 
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 int inPos;
-
+bool goingBackwards = false;
 
 void setup() {
   Serial.begin(115200); // Open serial monitor at 115200 baud to see ping results.
@@ -49,7 +49,7 @@ void loop() {
   unsigned int distanceCM =  uS / US_ROUNDTRIP_CM;
   
   
-  if(distanceCM < 0){
+  if(distanceCM < 20){
   
   // stop and measure again!! 
   
@@ -57,12 +57,56 @@ void loop() {
   1) Stop DC
   2) Mesure and avg over 10 .
   */
+  // Brake!!
+ 
+ if(!goingBackwards){
+   
+   // stop if we are going forward
+  digitalWrite(brake,HIGH); 
+ 
+ }
   
- // digitalWrite(brake,HIGH); 
+  unsigned int totalDist =0;
+    for(int i=0;i<10;i++){
+                        
+      unsigned int uS = sonar.ping(); // Send ping, get ping time in microseconds (uS).
+      unsigned int distanceCM =  uS / US_ROUNDTRIP_CM;
+      totalDist += distanceCM;
+      delay(30);    // Wait 30ms between pings 29ms should be the shortest delay between pings.
     
-  }else{
-  // Nothing in front of us. Everything is ok
-   //digitalWrite(brake,LOW); 
+    }
+    
+    unsigned int avgDist = totalDist/10;
+    Serial.print("Avg:");
+    Serial.println(avgDist);
+    
+    if(avgDist < 20){
+      
+      
+       analogWrite(pwm,0);
+        goingBackwards = true;
+      digitalWrite(dir,HIGH); // Motor backwards!! 
+      
+    }else{
+    // Nothing here, just wait for next loop iteration.
+
+    }
+
+  
+  }
+  // Dist > 20
+  else{
+    
+     digitalWrite(brake,LOW); // no brake
+    digitalWrite(dir,LOW); // Motor forward 
+    goingBackwards = false;
+    
+  // Nothing in front of us. Everything is ok 
+    
+  }
+    
+  
+   
   /* TODO:
   1) Read BT
   2) Set DC 
@@ -71,7 +115,7 @@ void loop() {
   
   /* START BT*/
   
-   if( BTSerial.available() ) {  // if data is available to read
+if( BTSerial.available() ) {  // if data is available to read
   
   char BTChar;
   
@@ -122,7 +166,7 @@ void loop() {
   
   /* END BT */
   
-  }
+  
  
  
 }
