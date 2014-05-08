@@ -90,6 +90,13 @@ void loop() {
   //  Serial.println("Stopping");
     analogWrite(pwm,0);
   }
+  else if(BTChar == 'm'){
+  
+    // MAX IT
+    analogWrite(pwm,255);
+  }
+  
+  
   else if(BTChar == 'p'){
 
     
