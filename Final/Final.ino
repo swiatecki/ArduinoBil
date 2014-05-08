@@ -80,7 +80,7 @@ void loop() {
   
   if(BTChar == 'h'){
   // Set motor high
-  
+    digitalWrite(brake,LOW); 
    analogWrite(pwm,140);
   
  // Serial.println("Go go ");
@@ -88,11 +88,13 @@ void loop() {
   
     // Stop motor
   //  Serial.println("Stopping");
+    digitalWrite(brake,HIGH); 
     analogWrite(pwm,0);
   }
   else if(BTChar == 'm'){
-  
-    // MAX IT
+    
+     // MAX IT
+      digitalWrite(brake,LOW); 
     analogWrite(pwm,255);
   }
   
