@@ -6,6 +6,8 @@
 #define ECHO_PIN     6  // Arduino pin tied to echo pin on the ultrasonic sensor.
 #define MAX_DISTANCE 200 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
 
+#define DIST 30 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
+
 int dir = 12;
 int brake = 9;
 int pwm = 3;
@@ -16,6 +18,7 @@ SoftwareSerial BTSerial(4,5);  // RX, TX
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 int inPos;
 bool goingBackwards = false;
+bool change = false;
 
 void setup() {
   Serial.begin(115200); // Open serial monitor at 115200 baud to see ping results.
@@ -44,48 +47,66 @@ void setup() {
 }
 
 void loop() {
-  delay(30);                      // Wait 30ms between pings 29ms should be the shortest delay between pings.
+ 
+     /*delay(30);                      // Wait 30ms between pings 29ms should be the shortest delay between pings.
   unsigned int uS = sonar.ping(); // Send ping, get ping time in microseconds (uS).
   unsigned int distanceCM =  uS / US_ROUNDTRIP_CM;
   
-  
-  if(distanceCM < 20){
+ Serial.print("Dist is:");
+ Serial.println(distanceCM);
+ 
+  if(distanceCM < DIST && distanceCM > 1){
   
   // stop and measure again!! 
   
   /* TODO:
   1) Stop DC
   2) Mesure and avg over 10 .
-  */
+  *//*
   // Brake!!
  
  if(!goingBackwards){
    
+     Serial.println("Fwd brake");
    // stop if we are going forward
   digitalWrite(brake,HIGH); 
  
  }
   
   unsigned int totalDist =0;
+  int div =0;
     for(int i=0;i<10;i++){
                         
       unsigned int uS = sonar.ping(); // Send ping, get ping time in microseconds (uS).
       unsigned int distanceCM =  uS / US_ROUNDTRIP_CM;
-      totalDist += distanceCM;
+      if(distanceCM > 0){
+            totalDist += distanceCM;
+            div++;
+      }
+
       delay(30);    // Wait 30ms between pings 29ms should be the shortest delay between pings.
     
     }
+    unsigned int avgDist =0; 
+    if(div != 0){// avoid div with zero
     
-    unsigned int avgDist = totalDist/10;
-    Serial.print("Avg:");
-    Serial.println(avgDist);
+      avgDist  = totalDist/div;
+   
     
-    if(avgDist < 20){
+    }
+
+    
+    if(avgDist < DIST && avgDist > 1){
       
-      
-       analogWrite(pwm,0);
+
+    Serial.println("Backwards! ");
+    if(!goingBackwards){
+    analogWrite(pwm,0);
+    }
+       //
         goingBackwards = true;
       digitalWrite(dir,HIGH); // Motor backwards!! 
+      change = true;
       
     }else{
     // Nothing here, just wait for next loop iteration.
@@ -95,8 +116,15 @@ void loop() {
   
   }
   // Dist > 20
-  else{
+  else if(distanceCM > 1){
     
+    if(change){
+    
+       analogWrite(pwm,0);
+       change = false;
+    }
+    
+    Serial.println("Forward");
      digitalWrite(brake,LOW); // no brake
     digitalWrite(dir,LOW); // Motor forward 
     goingBackwards = false;
@@ -104,8 +132,7 @@ void loop() {
   // Nothing in front of us. Everything is ok 
     
   }
-    
-  
+  */
    
   /* TODO:
   1) Read BT
@@ -131,15 +158,24 @@ if( BTSerial.available() ) {  // if data is available to read
   }else if(BTChar == 's'){
   
     // Stop motor
+    digitalWrite(dir,LOW); // Motor fwd 
   //  Serial.println("Stopping");
     digitalWrite(brake,HIGH); 
     analogWrite(pwm,0);
   }
   else if(BTChar == 'm'){
-    
+    Serial.println("MAX");
      // MAX IT
+     digitalWrite(dir,LOW); // Motor fwd 
       digitalWrite(brake,LOW); 
     analogWrite(pwm,255);
+  }
+   else if(BTChar == 'b'){
+    Serial.println("back");
+     // MAX IT
+      digitalWrite(brake,LOW); 
+      digitalWrite(dir,HIGH); // Motor back 
+    analogWrite(pwm,140);
   }
   
   
@@ -147,7 +183,7 @@ if( BTSerial.available() ) {  // if data is available to read
 
     
   inPos = BTSerial.parseInt();
- 
+// Serial.println(inPos);
   inPos = map(inPos,1,100,40,120); // change when servo is mounted  
 
   servo.write(inPos);
