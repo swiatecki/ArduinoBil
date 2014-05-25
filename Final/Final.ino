@@ -13,6 +13,11 @@ int brake = 9;
 int pwm = 3;
 Servo servo;
 
+enum {
+forward,
+backwards
+} curDir;
+
 SoftwareSerial BTSerial(4,5);  // RX, TX
 
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
