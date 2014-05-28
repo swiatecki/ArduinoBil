@@ -86,7 +86,8 @@ inZone = false;
 
 void loop() {
  
-     delay(60);                      // Wait 60ms between pings 29ms should be the shortest delay between pings.
+     delay(60);           // Wait 60ms between pings 29ms should be the shortest delay between pings.
+     
   unsigned int distanceCM = sonar.ping_cm(); // Send ping, get ping distance in cm
   
  Serial.print("Dist is:");
@@ -147,7 +148,7 @@ void loop() {
       // Vi er i zonen
       
       inZone = true; 
-    //  brakeOff();
+    
       
       
     }else{
@@ -162,7 +163,7 @@ void loop() {
   
   
   }
-  // Dist > 20 .-- OVER
+  // Dist > DIST. OVER
   else if(distanceCM > 1){
     
     if(inZone){
